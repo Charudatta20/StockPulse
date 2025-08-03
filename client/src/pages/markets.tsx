@@ -14,7 +14,7 @@ export default function Markets() {
     queryKey: ["/api/market/overview"],
   });
 
-  const { data: stocks } = useQuery({
+  const { data: stocks = [], isLoading: stocksLoading } = useQuery({
     queryKey: ["/api/stocks"],
     queryFn: async () => {
       const response = await fetch("/api/stocks?limit=100", {
@@ -128,7 +128,27 @@ export default function Markets() {
           </TabsList>
 
           <TabsContent value="screener" className="mt-6">
-            <StockScreener stocks={filteredStocks} />
+            {stocksLoading ? (
+              <Card className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700">
+                <CardContent className="p-6">
+                  <div className="text-center py-8">
+                    <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p className="text-gray-500 dark:text-gray-400">Loading stocks...</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : filteredStocks.length > 0 ? (
+              <StockScreener stocks={filteredStocks} />
+            ) : (
+              <Card className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700">
+                <CardContent className="p-6">
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 dark:text-gray-400">No stocks found</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">Try adjusting your market filter</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="gainers" className="mt-6">

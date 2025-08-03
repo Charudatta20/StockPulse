@@ -9,6 +9,7 @@ interface StockScreenerProps {
 }
 
 export default function StockScreener({ stocks }: StockScreenerProps) {
+  console.log("StockScreener received stocks:", stocks?.length || 0, stocks);
   const [filters, setFilters] = useState({
     marketCap: "all",
     sector: "all",
@@ -224,7 +225,14 @@ export default function StockScreener({ stocks }: StockScreenerProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-slate-600">
-              {paginatedStocks.map((stock) => (
+              {paginatedStocks.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-gray-500 dark:text-gray-400">
+                    No stocks match your filters
+                  </td>
+                </tr>
+              ) : (
+                paginatedStocks.map((stock) => (
                 <tr key={stock.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50">
                   <td className="py-4 px-4">
                     <div className="flex items-center space-x-3">
@@ -271,7 +279,8 @@ export default function StockScreener({ stocks }: StockScreenerProps) {
                     </div>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
