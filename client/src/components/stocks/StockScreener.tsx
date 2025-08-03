@@ -10,12 +10,12 @@ interface StockScreenerProps {
 
 export default function StockScreener({ stocks }: StockScreenerProps) {
   const [filters, setFilters] = useState({
-    marketCap: "",
-    sector: "",
-    peRatio: "",
-    dividendYield: "",
-    market: "",
-    performance: "",
+    marketCap: "all",
+    sector: "all",
+    peRatio: "any",
+    dividendYield: "any",
+    market: "all",
+    performance: "any",
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,8 +23,8 @@ export default function StockScreener({ stocks }: StockScreenerProps) {
 
   // Apply filters to stocks
   const filteredStocks = stocks.filter((stock) => {
-    if (filters.market && filters.market !== stock.country) return false;
-    if (filters.sector && filters.sector !== stock.sector) return false;
+    if (filters.market && filters.market !== "all" && filters.market !== stock.country) return false;
+    if (filters.sector && filters.sector !== "all" && filters.sector !== stock.sector) return false;
     // Add more filter logic as needed
     return true;
   });
@@ -115,7 +115,7 @@ export default function StockScreener({ stocks }: StockScreenerProps) {
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="large">Large Cap</SelectItem>
                 <SelectItem value="mid">Mid Cap</SelectItem>
                 <SelectItem value="small">Small Cap</SelectItem>
@@ -132,7 +132,7 @@ export default function StockScreener({ stocks }: StockScreenerProps) {
                 <SelectValue placeholder="All Sectors" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Sectors</SelectItem>
+                <SelectItem value="all">All Sectors</SelectItem>
                 <SelectItem value="Technology">Technology</SelectItem>
                 <SelectItem value="Finance">Financial</SelectItem>
                 <SelectItem value="Healthcare">Healthcare</SelectItem>
@@ -150,7 +150,7 @@ export default function StockScreener({ stocks }: StockScreenerProps) {
                 <SelectValue placeholder="Any" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any</SelectItem>
+                <SelectItem value="any">Any</SelectItem>
                 <SelectItem value="low">&lt; 15</SelectItem>
                 <SelectItem value="medium">15-25</SelectItem>
                 <SelectItem value="high">&gt; 25</SelectItem>
@@ -167,7 +167,7 @@ export default function StockScreener({ stocks }: StockScreenerProps) {
                 <SelectValue placeholder="Any" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any</SelectItem>
+                <SelectItem value="any">Any</SelectItem>
                 <SelectItem value="low">&lt; 2%</SelectItem>
                 <SelectItem value="medium">2%-5%</SelectItem>
                 <SelectItem value="high">&gt; 5%</SelectItem>
@@ -184,7 +184,7 @@ export default function StockScreener({ stocks }: StockScreenerProps) {
                 <SelectValue placeholder="All Markets" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Markets</SelectItem>
+                <SelectItem value="all">All Markets</SelectItem>
                 <SelectItem value="US">US (NASDAQ/NYSE)</SelectItem>
                 <SelectItem value="IN">India (NSE/BSE)</SelectItem>
               </SelectContent>
@@ -200,7 +200,7 @@ export default function StockScreener({ stocks }: StockScreenerProps) {
                 <SelectValue placeholder="Any" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any</SelectItem>
+                <SelectItem value="any">Any</SelectItem>
                 <SelectItem value="gainers">Top Gainers</SelectItem>
                 <SelectItem value="losers">Top Losers</SelectItem>
                 <SelectItem value="volume">High Volume</SelectItem>

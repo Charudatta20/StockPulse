@@ -363,6 +363,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add sample data endpoint for development
+  app.post('/api/seed', async (req, res) => {
+    try {
+      // Create sample stocks
+      const sampleStocks = [
+        { symbol: 'AAPL', name: 'Apple Inc.', exchange: 'NASDAQ', sector: 'Technology', country: 'US', currency: 'USD', marketCap: '3000000000000' },
+        { symbol: 'GOOGL', name: 'Alphabet Inc.', exchange: 'NASDAQ', sector: 'Technology', country: 'US', currency: 'USD', marketCap: '1800000000000' },
+        { symbol: 'MSFT', name: 'Microsoft Corporation', exchange: 'NASDAQ', sector: 'Technology', country: 'US', currency: 'USD', marketCap: '2800000000000' },
+        { symbol: 'RELIANCE', name: 'Reliance Industries Limited', exchange: 'NSE', sector: 'Energy', country: 'IN', currency: 'INR', marketCap: '1500000000000' },
+        { symbol: 'TCS', name: 'Tata Consultancy Services', exchange: 'NSE', sector: 'Technology', country: 'IN', currency: 'INR', marketCap: '1200000000000' },
+        { symbol: 'INFY', name: 'Infosys Limited', exchange: 'NSE', sector: 'Technology', country: 'IN', currency: 'INR', marketCap: '800000000000' },
+      ];
+
+      for (const stockData of sampleStocks) {
+        const existingStock = await storage.getStock(stockData.symbol);
+        if (!existingStock) {
+          const stock = await storage.createStock(stockData);
+          // Add sample price
+          await storage.updateStockPrice(stock.id, Math.random() * 200 + 50, Math.floor(Math.random() * 1000000) + 100000);
+        }
+      }
+
+      // Create sample news
+      const sampleNews = [
+        {
+          title: 'Tech Stocks Rally on Strong Earnings',
+          content: 'Major technology companies reported better-than-expected earnings...',
+          source: 'Financial Times',
+          url: 'https://example.com/news1',
+          category: 'earnings',
+          market: 'US',
+          publishedAt: new Date(),
+        },
+        {
+          title: 'Indian Markets Hit All-Time High',
+          content: 'Sensex and Nifty reach new records amid positive sentiment...',
+          source: 'Economic Times',
+          url: 'https://example.com/news2',
+          category: 'market',
+          market: 'IN',
+          publishedAt: new Date(),
+        },
+      ];
+
+      for (const newsData of sampleNews) {
+        await storage.createNews(newsData);
+      }
+
+      // Create sample IPOs
+      const sampleIPOs = [
+        {
+          companyName: 'TechCorp Inc.',
+          symbol: 'TECH',
+          priceRange: '$18-22',
+          openDate: new Date('2024-12-01'),
+          closeDate: new Date('2024-12-03'),
+          listingDate: new Date('2024-12-05'),
+          status: 'upcoming',
+          exchange: 'NASDAQ',
+          country: 'US',
+          description: 'Leading technology solutions provider',
+        },
+      ];
+
+      for (const ipoData of sampleIPOs) {
+        await storage.createIPO(ipoData);
+      }
+
+      res.json({ message: 'Sample data created successfully' });
+    } catch (error) {
+      console.error('Error creating sample data:', error);
+      res.status(500).json({ message: 'Failed to create sample data' });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // WebSocket server for real-time updates
