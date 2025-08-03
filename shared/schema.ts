@@ -354,8 +354,69 @@ export const insertAlertSchema = createInsertSchema(alerts).omit({
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
-export type InsertStock = z.infer<typeof insertStockSchema>;
+
+// Stock types
 export type Stock = typeof stocks.$inferSelect;
+export type InsertStock = typeof stocks.$inferInsert;
+
+// Order types  
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = typeof orders.$inferInsert;
+
+// Portfolio types
+export type Portfolio = typeof portfolios.$inferSelect;
+export type InsertPortfolio = typeof portfolios.$inferInsert;
+
+// Holding types
+export type Holding = typeof holdings.$inferSelect;
+export type InsertHolding = typeof holdings.$inferInsert;
+
+// Watchlist types
+export type Watchlist = typeof watchlists.$inferSelect;
+export type InsertWatchlist = typeof watchlists.$inferInsert;
+
+// IPO types
+export type IPO = typeof ipos.$inferSelect;
+export type InsertIPO = typeof ipos.$inferInsert;
+
+// News types
+export type News = typeof news.$inferSelect;
+export type InsertNews = typeof news.$inferInsert;
+
+// Enhanced Zod schemas for API validation
+export const insertOrderSchemaAPI = createInsertSchema(orders).omit({
+  id: true,
+  userId: true,
+  portfolioId: true,
+  stockId: true,
+  status: true,
+  filledQuantity: true,
+  filledPrice: true,
+  totalValue: true,
+  fees: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  symbol: z.string().min(1, "Symbol is required"),
+  side: z.enum(["buy", "sell"]),
+  type: z.enum(["market", "limit"]),
+  quantity: z.number().min(1, "Quantity must be at least 1"),
+  price: z.number().optional(),
+});
+
+export const insertWatchlistItemSchemaAPI = createInsertSchema(watchlistItems).omit({
+  addedAt: true,
+});
+
+export const insertAlertSchemaAPI = createInsertSchema(alerts).omit({
+  id: true,
+  userId: true,
+  isActive: true,
+  isTriggered: true,
+  triggeredAt: true,
+  createdAt: true,
+});
+
 export type StockPrice = typeof stockPrices.$inferSelect;
 export type InsertPortfolio = z.infer<typeof insertPortfolioSchema>;
 export type Portfolio = typeof portfolios.$inferSelect;

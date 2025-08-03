@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertOrderSchema, insertWatchlistItemSchema, insertAlertSchema } from "@shared/schema";
+import { insertOrderSchemaAPI, insertWatchlistItemSchemaAPI, insertAlertSchemaAPI } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -104,6 +104,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching orders:", error);
       res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
+  app.post('/api/orders', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const validation = insertOrderSchemaAPI.safeParse(req.body);
+      
+      if (!validation.success) {
+        const errorMessage = fromZodError(validation.error);
+        return res.status(400).json({ message: errorMessage.toString() });
+      }
+
+      const orderData = {
+        ...validation.data,
+        userId,
+        status: 'pending' as const,
+      };
+
+      // Get stock info for price validation
+      const stock = await storage.getStock(orderData.symbol);
+      if (!stock) {
+        return res.status(404).json({ message: "Stock not found" });
+      }
+
+      // Get current stock price
+      const [stockPrice] = await storage.getStockPrices([stock.id]);
+      if (!stockPrice || !stockPrice.price) {
+        return res.status(400).json({ message: "Stock price not available" });
+      }
+
+      const currentPrice = parseFloat(stockPrice.price);
+      const orderPrice = orderData.price || currentPrice;
+      
+      // For market orders, use current price
+      if (orderData.type === 'market') {
+        orderData.price = currentPrice;
+      }
+
+      // Calculate total cost
+      const totalCost = orderPrice * orderData.quantity;
+
+      // For buy orders, check if user has sufficient funds (simplified - assuming unlimited funds for demo)
+      if (orderData.side === 'buy') {
+        // Create the order
+        const order = await storage.createOrder(orderData);
+        
+        // Execute order immediately for market orders
+        if (orderData.type === 'market') {
+          await storage.updateOrderStatus(order.id, 'filled');
+          
+          // Add to portfolio
+          const portfolios = await storage.getUserPortfolios(userId);
+          let portfolio;
+          
+          if (portfolios.length === 0) {
+            portfolio = await storage.createPortfolio({ name: 'Default Portfolio', userId });
+          } else {
+            portfolio = portfolios[0];
+          }
+
+          // Add or update holding
+          const existingHolding = await storage.getPortfolioHolding(portfolio.id, stock.id);
+          
+          if (existingHolding) {
+            const newQuantity = existingHolding.quantity + orderData.quantity;
+            const newAvgPrice = ((existingHolding.averagePrice * existingHolding.quantity) + (orderPrice * orderData.quantity)) / newQuantity;
+            await storage.updateHolding(existingHolding.id, { quantity: newQuantity, averagePrice: newAvgPrice });
+          } else {
+            await storage.createHolding({
+              portfolioId: portfolio.id,
+              stockId: stock.id,
+              quantity: orderData.quantity,
+              averagePrice: orderPrice,
+            });
+          }
+        }
+
+        res.status(201).json(order);
+      } else {
+        // Sell orders - check holdings
+        const portfolios = await storage.getUserPortfolios(userId);
+        if (portfolios.length === 0) {
+          return res.status(400).json({ message: "No portfolio found" });
+        }
+
+        const holding = await storage.getPortfolioHolding(portfolios[0].id, stock.id);
+        if (!holding || holding.quantity < orderData.quantity) {
+          return res.status(400).json({ message: "Insufficient shares to sell" });
+        }
+
+        const order = await storage.createOrder(orderData);
+        
+        // Execute sell order immediately for market orders
+        if (orderData.type === 'market') {
+          await storage.updateOrderStatus(order.id, 'filled');
+          
+          // Update holding
+          const newQuantity = holding.quantity - orderData.quantity;
+          if (newQuantity === 0) {
+            await storage.deleteHolding(holding.id);
+          } else {
+            await storage.updateHolding(holding.id, { quantity: newQuantity });
+          }
+        }
+
+        res.status(201).json(order);
+      }
+    } catch (error) {
+      console.error("Error creating order:", error);
+      res.status(500).json({ message: "Failed to create order" });
     }
   });
 

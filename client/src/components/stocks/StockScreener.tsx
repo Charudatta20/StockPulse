@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, ShoppingCart } from "lucide-react";
+import BuyStockModal from "@/components/trading/BuyStockModal";
 
 interface StockScreenerProps {
   stocks: any[];
@@ -10,6 +11,8 @@ interface StockScreenerProps {
 
 export default function StockScreener({ stocks }: StockScreenerProps) {
   console.log("StockScreener received stocks:", stocks?.length || 0, stocks);
+  const [buyModalOpen, setBuyModalOpen] = useState(false);
+  const [selectedStock, setSelectedStock] = useState<any>(null);
   const [filters, setFilters] = useState({
     marketCap: "all",
     sector: "all",
@@ -273,7 +276,15 @@ export default function StockScreener({ stocks }: StockScreenerProps) {
                       <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
                         <Plus className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-700">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-green-600 hover:text-green-700"
+                        onClick={() => {
+                          setSelectedStock(stock);
+                          setBuyModalOpen(true);
+                        }}
+                      >
                         <ShoppingCart className="w-4 h-4" />
                       </Button>
                     </div>
@@ -313,6 +324,15 @@ export default function StockScreener({ stocks }: StockScreenerProps) {
           </div>
         </div>
       </CardContent>
+
+      <BuyStockModal
+        stock={selectedStock}
+        isOpen={buyModalOpen}
+        onClose={() => {
+          setBuyModalOpen(false);
+          setSelectedStock(null);
+        }}
+      />
     </Card>
   );
 }
