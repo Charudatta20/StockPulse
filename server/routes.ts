@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertOrderSchemaAPI, insertWatchlistItemSchemaAPI, insertAlertSchemaAPI } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import path from "path";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -228,7 +229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/orders', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const orderData = insertOrderSchema.parse({
+      const orderData = insertOrderSchemaAPI.parse({
         ...req.body,
         userId,
       });
@@ -434,7 +435,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/alerts', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const alertData = insertAlertSchema.parse({
+      const alertData = insertAlertSchemaAPI.parse({
         ...req.body,
         userId,
       });
@@ -554,6 +555,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error creating sample data:', error);
       res.status(500).json({ message: 'Failed to create sample data' });
     }
+  });
+
+  // Serve frontend for all non-API, non-static routes
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../dist/public/index.html"));
   });
 
   const httpServer = createServer(app);
