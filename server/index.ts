@@ -96,9 +96,9 @@ app.get("/login", (req, res) => {
       <div class="container">
         <h1>Welcome Back</h1>
         <div class="form">
-          <form>
-            <input type="email" placeholder="Email" required>
-            <input type="password" placeholder="Password" required>
+          <form action="/dashboard" method="GET">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
             <button type="submit" class="btn">Sign In</button>
           </form>
           <p><a href="/signup" style="color: white;">Don't have an account? Sign up</a></p>
@@ -110,6 +110,42 @@ app.get("/login", (req, res) => {
 });
 
 
+app.get("/dashboard", (req, res) => {
+  const email = req.query.email || 'User';
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Dashboard - StockPulse</title>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .container { max-width: 800px; margin: 0 auto; text-align: center; }
+        h1 { font-size: 3em; margin-bottom: 20px; }
+        .welcome { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 10px; margin: 20px 0; }
+        .btn { display: inline-block; padding: 12px 24px; margin: 10px; background: #4CAF50; color: white; text-decoration: none; border-radius: 5px; }
+        .btn:hover { background: #45a049; }
+        .logout { background: #ff4757; }
+        .logout:hover { background: #ff3742; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>🚀 StockPulse Dashboard</h1>
+        <div class="welcome">
+          <h2>Welcome back, ${email}!</h2>
+          <p>You have successfully logged in to your StockPulse account.</p>
+          <p>Your trading dashboard is ready to use.</p>
+        </div>
+        <div>
+          <a href="/" class="btn logout">Logout</a>
+          <a href="/test" class="btn">Test API</a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
 
 const port = parseInt(process.env.PORT || '5000', 10);
 app.listen(port, "0.0.0.0", () => {
