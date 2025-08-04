@@ -8,7 +8,14 @@ import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
-  await setupAuth(app);
+  if (
+    process.env.REPLIT_DOMAINS &&
+    process.env.REPL_ID &&
+    process.env.ISSUER_URL &&
+    process.env.SESSION_SECRET
+  ) {
+    await setupAuth(app);
+  }
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
