@@ -666,8 +666,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test route to check if server is working
+  app.get("/test", (req, res) => {
+    res.json({ message: "Server is working!", timestamp: new Date().toISOString() });
+  });
+
   // Serve frontend for all non-API, non-static routes
   app.get("*", (req, res) => {
+    console.log('Catch-all route hit for:', req.path);
     try {
       const indexPath = path.join(__dirname, "../dist/public/index.html");
       console.log('Attempting to serve:', indexPath);
