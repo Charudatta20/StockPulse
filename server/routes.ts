@@ -6,6 +6,8 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertOrderSchemaAPI, insertWatchlistItemSchemaAPI, insertAlertSchemaAPI } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import { 
   signupUser, 
   loginUser, 
@@ -15,6 +17,10 @@ import {
   loginSchema, 
   socialAuthSchema 
 } from "./auth";
+
+// ES Module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
