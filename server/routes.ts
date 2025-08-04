@@ -668,7 +668,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Serve frontend for all non-API, non-static routes
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../dist/public/index.html"));
+    try {
+      const indexPath = path.join(__dirname, "../dist/public/index.html");
+      console.log('Attempting to serve:', indexPath);
+      console.log('Current directory:', __dirname);
+      
+      res.sendFile(indexPath, (err) => {
+        if (err) {
+          console.error('Error serving index.html:', err);
+          console.error('File path attempted:', indexPath);
+          // Fallback: send a simple HTML response
+          res.status(200).send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>StockPulse</title>
+              <meta charset="utf-8">
+            </head>
+            <body>
+              <div id="root">
+                <h1>StockPulse</h1>
+                <p>Loading...</p>
+                <p>If you see this message, the frontend build might not be complete.</p>
+                <p>Error: ${err.message}</p>
+              </div>
+            </body>
+            </html>
+          `);
+        }
+      });
+    } catch (error) {
+      console.error('Error in catch-all route:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
   });
 
   const httpServer = createServer(app);
