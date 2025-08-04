@@ -16,7 +16,7 @@ import { TrendingUp, Moon, Sun, User, LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 export default function Navigation() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { currency, setCurrency } = useCurrency();
   const [location] = useLocation();
@@ -132,7 +132,7 @@ export default function Navigation() {
                   Profile Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => window.location.href = "/api/logout"}>
+                <DropdownMenuItem onClick={logout}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
                 </DropdownMenuItem>

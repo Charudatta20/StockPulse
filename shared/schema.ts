@@ -26,15 +26,19 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table for Replit Auth
+// User storage table for flexible authentication
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
+  email: varchar("email").unique().notNull(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   buyingPower: decimal("buying_power", { precision: 15, scale: 2 }).default('10000.00'),
   preferredCurrency: varchar("preferred_currency").default('USD'),
+  // Authentication fields
+  authMethod: varchar("auth_method").default('email'), // email, google, github
+  hashedPassword: text("hashed_password"), // Only for email auth
+  socialId: varchar("social_id"), // For social auth
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

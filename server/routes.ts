@@ -6,6 +6,15 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertOrderSchemaAPI, insertWatchlistItemSchemaAPI, insertAlertSchemaAPI } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import path from "path";
+import { 
+  signupUser, 
+  loginUser, 
+  socialAuth, 
+  authenticateToken, 
+  signupSchema, 
+  loginSchema, 
+  socialAuthSchema 
+} from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -554,6 +563,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error creating sample data:', error);
       res.status(500).json({ message: 'Failed to create sample data' });
+    }
+  });
+
+  // Authentication routes
+  app.post('/api/auth/signup', async (req, res) => {
+    try {
+      const validatedData = signupSchema.parse(req.body);
+      const result = await signupUser(validatedData);
+      res.json({ 
+        success: true, 
+        user: result.user, 
+        token: result.token,
+        message: 'Account created successfully' 
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ 
+          success: false, 
+          message: 'Validation error', 
+          errors: fromZodError(error).message 
+        });
+      } else {
+        res.status(400).json({ 
+          success: false, 
+          message: error instanceof Error ? error.message : 'Signup failed' 
+        });
+      }
+    }
+  });
+
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const validatedData = loginSchema.parse(req.body);
+      const result = await loginUser(validatedData);
+      res.json({ 
+        success: true, 
+        user: result.user, 
+        token: result.token,
+        message: 'Login successful' 
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ 
+          success: false, 
+          message: 'Validation error', 
+          errors: fromZodError(error).message 
+        });
+      } else {
+        res.status(401).json({ 
+          success: false, 
+          message: error instanceof Error ? error.message : 'Login failed' 
+        });
+      }
+    }
+  });
+
+  app.post('/api/auth/social', async (req, res) => {
+    try {
+      const validatedData = socialAuthSchema.parse(req.body);
+      const result = await socialAuth(validatedData);
+      res.json({ 
+        success: true, 
+        user: result.user, 
+        token: result.token,
+        message: 'Social authentication successful' 
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ 
+          success: false, 
+          message: 'Validation error', 
+          errors: fromZodError(error).message 
+        });
+      } else {
+        res.status(400).json({ 
+          success: false, 
+          message: error instanceof Error ? error.message : 'Social authentication failed' 
+        });
+      }
+    }
+  });
+
+  app.get('/api/auth/me', authenticateToken, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      res.json({ success: true, user });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to fetch user data' 
+      });
     }
   });
 

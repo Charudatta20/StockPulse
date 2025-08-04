@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, BarChart3, PieChart, Smartphone, Globe, Shield } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function Landing() {
+  const [, setLocation] = useLocation();
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Header */}
@@ -14,12 +17,21 @@ export default function Landing() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">StockPulse</h1>
           </div>
-          <Button 
-            onClick={() => window.location.href = '/api/login'}
-            className="bg-primary hover:bg-primary/90"
-          >
-            Get Started
-          </Button>
+          <div className="flex items-center space-x-4">
+            <Button 
+              onClick={() => setLocation('/login')}
+              variant="outline"
+              className="border-primary text-primary hover:bg-primary hover:text-white"
+            >
+              Sign In
+            </Button>
+            <Button 
+              onClick={() => setLocation('/signup')}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Get Started
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -37,13 +49,18 @@ export default function Landing() {
           <div className="flex items-center justify-center space-x-4">
             <Button 
               size="lg" 
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => setLocation('/signup')}
               className="bg-primary hover:bg-primary/90 px-8 py-4 text-lg"
             >
               Start Trading Today
             </Button>
-            <Button size="lg" variant="outline" className="px-8 py-4 text-lg">
-              Learn More
+            <Button 
+              size="lg" 
+              variant="outline" 
+              onClick={() => setLocation('/login')}
+              className="px-8 py-4 text-lg"
+            >
+              Sign In
             </Button>
           </div>
         </div>

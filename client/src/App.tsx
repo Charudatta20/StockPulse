@@ -14,6 +14,8 @@ import Markets from "@/pages/markets";
 import Watchlist from "@/pages/watchlist";
 import News from "@/pages/news";
 import IPOs from "@/pages/ipos";
+import Login from "@/pages/login";
+import SignUp from "@/pages/signup";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -21,7 +23,11 @@ function Router() {
   return (
     <Switch>
       {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
+        <>
+          <Route path="/" component={Landing} />
+          <Route path="/login" component={Login} />
+          <Route path="/signup" component={SignUp} />
+        </>
       ) : (
         <>
           <Route path="/" component={Dashboard} />
