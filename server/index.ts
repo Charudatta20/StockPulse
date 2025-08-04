@@ -36,7 +36,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/test", (req, res) => {
-  res.json({ message: "Server is working!", timestamp: new Date().toISOString() });
+  res.redirect("/dashboard");
 });
 
 app.get("/signup", (req, res) => {
@@ -123,10 +123,10 @@ app.get("/dashboard", (req, res) => {
         .container { max-width: 800px; margin: 0 auto; text-align: center; }
         h1 { font-size: 3em; margin-bottom: 20px; }
         .welcome { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 10px; margin: 20px 0; }
-        .btn { display: inline-block; padding: 12px 24px; margin: 10px; background: #4CAF50; color: white; text-decoration: none; border-radius: 5px; }
-        .btn:hover { background: #45a049; }
-        .logout { background: #ff4757; }
-        .logout:hover { background: #ff3742; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 40px 0; }
+        .card { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; text-align: center; }
+        .card h3 { margin: 0 0 10px 0; font-size: 1.2em; }
+        .card p { font-size: 1.8em; font-weight: bold; margin: 0; }
       </style>
     </head>
     <body>
@@ -137,9 +137,23 @@ app.get("/dashboard", (req, res) => {
           <p>You have successfully logged in to your StockPulse account.</p>
           <p>Your trading dashboard is ready to use.</p>
         </div>
-        <div>
-          <a href="/" class="btn logout">Logout</a>
-          <a href="/test" class="btn">Test API</a>
+        <div class="stats">
+          <div class="card">
+            <h3>Portfolio Value</h3>
+            <p>$10,000</p>
+          </div>
+          <div class="card">
+            <h3>Today's Gain</h3>
+            <p style="color: #4CAF50;">+$250</p>
+          </div>
+          <div class="card">
+            <h3>Total Gain</h3>
+            <p style="color: #4CAF50;">+$1,200</p>
+          </div>
+          <div class="card">
+            <h3>Active Positions</h3>
+            <p>5</p>
+          </div>
         </div>
       </div>
     </body>
