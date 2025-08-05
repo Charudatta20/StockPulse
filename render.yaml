@@ -10,4 +10,10 @@ services:
       - key: DATABASE_URL
         sync: false  # You'll set this in the Render dashboard
     healthCheckPath: /
-    autoDeploy: true 
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - client/**
+        - server/**
+        - package.json
+        - vite.config.ts 
