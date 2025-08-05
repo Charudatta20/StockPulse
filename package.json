@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx server/index.ts",
     "build": "vite build",
-    "start": "NODE_ENV=production tsx server/direct-server.ts",
+    "start": "NODE_ENV=production node test-server.js",
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "build:win": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
